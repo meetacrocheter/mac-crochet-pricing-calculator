@@ -125,6 +125,12 @@ Enter your details above to see results
 let saved = [];
 let summary = "";
 
+// Function to update rate when skill changes
+document.getElementById("skill").addEventListener("change", function() {
+    document.getElementById("rate").value = this.value;
+    calc();
+});
+
 function calc(){
 let c = document.getElementById("currency").value;
 let yarn = +document.getElementById("yarn").value || 0;
@@ -213,4 +219,4 @@ window.open("https://wa.me/?text="+text);
 </script>
 
 </body>
-  </html>
+</html>
