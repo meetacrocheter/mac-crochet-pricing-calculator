@@ -7,15 +7,13 @@
 
 <style>
 body { font-family: Arial; background:#f5f5f5; padding:20px; }
-.container { max-width:500px; margin:auto; background:#fff; padding:20px; border-radius:12px; }
+.container { max-width:600px; margin:auto; background:#fff; padding:20px; border-radius:12px; }
 
 label { font-weight:bold; margin-top:10px; display:block; }
 input, select { width:100%; padding:10px; margin-top:5px; border-radius:8px; border:1px solid #ccc; }
 
 .info { font-size:12px; color:gray; margin-bottom:5px; }
-
 .section { margin-top:20px; padding:15px; background:#f9f9f9; border-radius:10px; }
-
 .highlight { background:#e6ffe6; padding:8px; border-radius:6px; font-weight:bold; }
 
 button {
@@ -32,6 +30,8 @@ button {
 .share { background:#25D366; color:white; }
 
 .card { background:#fff; padding:10px; margin-top:10px; border-radius:8px; }
+
+#currencySuggestions { display:block; margin-top:5px; font-size:12px; color:gray; }
 </style>
 </head>
 
@@ -42,45 +42,22 @@ button {
 <h2>🧶 MaC Crochet Pricing Calculator Pro</h2>
 <div class="info">by Meet a Crocheter Community</div>
 
-<label>Currency</label>
-<select id="currency">
-<option value="₦">₦ NGN (Nigerian Naira)</option>
-<option value="$">$ USD (US Dollar)</option>
-<option value="€">€ EUR (Euro)</option>
-<option value="£">£ GBP (British Pound)</option>
-<option value="₵">₵ GHS (Ghanaian Cedi)</option>
-<option value="R">R ZAR (South African Rand)</option>
-<option value="KSh">KSh KES (Kenyan Shilling)</option>
-<option value="Le">Le SLL (Sierra Leone Leone)</option>
-<option value="FCFA">FCFA XAF (Cameroon CFA Franc)</option>
-<option value="AED">AED (UAE Dirham)</option>
-<option value="AUD">A$ AUD</option>
-<option value="CAD">C$ CAD</option>
-<option value="JPY">¥ JPY</option>
-<option value="CNY">¥ CNY</option>
-<option value="INR">₹ INR</option>
-<option value="NZD">NZ$ NZD</option>
-<option value="SGD">S$ SGD</option>
-<option value="THB">฿ THB</option>
-<option value="TRY">₺ TRY</option>
-<option value="BRL">R$ BRL</option>
-<option value="PHP">₱ PHP</option>
-<option value="EGP">£ EGP</option>
-<option value="TZS">TSh TZS</option>
-<option value="UGX">USh UGX</option>
-<option value="XOF">CFA XOF</option>
-</select>
-<div class="info">Choose your working currency</div>
+<label>Currency (type your country or symbol)</label>
+<input type="text" id="currencyInput" placeholder="e.g., ₦, $, €, £, NGN, USD, EUR">
+<div id="currencySuggestions">Example: ₦ NGN (Naira), $ USD (Dollar), € EUR (Euro)</div>
 
 <label>Your Skill Level</label>
 <select id="skill">
-<option value="1000">Beginner - Just starting out</option>
-<option value="1500">Novice - Can handle simple projects</option>
-<option value="2500">Intermediate - Confident with patterns</option>
-<option value="3500">Advanced - Complex designs</option>
-<option value="5000">Expert - Professional level</option>
+<option value="1000" data-text="Beginner – Just starting out">Beginner</option>
+<option value="1500" data-text="Novice – Can handle simple projects">Novice</option>
+<option value="2500" data-text="Intermediate – Confident with patterns">Intermediate</option>
+<option value="3500" data-text="Advanced – Complex designs">Advanced</option>
+<option value="5000" data-text="Expert – Professional level">Expert/Professional</option>
 </select>
-<div class="info">Recommended rate based on skill level</div>
+<div class="info" id="skillInfo">Recommended rate shown as guide</div>
+
+<label>Hourly Rate (you can change)</label>
+<input type="number" id="rate" placeholder="e.g., 1000">
 
 <label>Product Name (Optional)</label>
 <input type="text" id="product" placeholder="e.g., Baby Blanket, Tote Bag">
@@ -98,10 +75,6 @@ button {
 <input type="number" id="hours" placeholder="0">
 <div class="info">Total time spent crocheting</div>
 
-<label>Hourly Rate</label>
-<input type="number" id="rate" placeholder="e.g., 1000">
-<div class="info">How much you charge per hour</div>
-
 <label>Overhead %</label>
 <input type="number" id="overhead" value="10">
 <div class="info">Covers electricity, tools, packaging</div>
@@ -111,7 +84,7 @@ Enter your details above to see results
 </div>
 
 <button class="save" onclick="saveProduct()">Save Product</button>
-<button class="export" onclick="exportData()">Export Data</button>
+<button class="export" onclick="downloadImage()">Download Result as Image</button>
 <button class="share" onclick="shareWhatsApp()">Share to WhatsApp</button>
 
 <div class="section">
@@ -121,100 +94,124 @@ Enter your details above to see results
 
 </div>
 
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <script>
 let saved = [];
 let summary = "";
 
-// Function to update rate when skill changes
+// Recommended rate display when skill changes (does NOT override user input)
 document.getElementById("skill").addEventListener("change", function() {
-    document.getElementById("rate").value = this.value;
-    calc();
+    const selectedRate = this.value;
+    const infoText = this.options[this.selectedIndex].dataset.text + " – Recommended: " + selectedRate;
+    document.getElementById("skillInfo").innerText = infoText;
 });
 
-function calc(){
-let c = document.getElementById("currency").value;
-let yarn = +document.getElementById("yarn").value || 0;
-let mat = +document.getElementById("materials").value || 0;
-let hrs = +document.getElementById("hours").value || 0;
-let rate = +document.getElementById("rate").value || 0;
-let overheadP = +document.getElementById("overhead").value || 0;
+// Map for common currencies (expandable)
+const currencyMap = {
+    "₦": "NGN", "NGN":"₦",
+    "$":"USD", "USD":"$", 
+    "€":"EUR", "EUR":"€", 
+    "£":"GBP", "GBP":"£",
+    "₵":"GHS","GHS":"₵",
+    "R":"ZAR","ZAR":"R",
+    "KSh":"KES","KES":"KSh",
+    "C$":"CAD","CAD":"C$",
+    "A$":"AUD","AUD":"A$",
+    "¥":"JPY","JPY":"¥",
+    "₹":"INR","INR":"₹"
+    // Add more as needed
+};
 
-if(!yarn && !mat && !hrs && !rate){
-document.getElementById("output").innerHTML = "Enter your details above to see results";
-return;
+function getCurrency() {
+    let input = document.getElementById("currencyInput").value.trim();
+    return currencyMap[input] || input || "₦";
 }
 
-let materials = yarn + mat;
-let labor = hrs * rate;
-let overhead = (materials + labor)*(overheadP/100);
-let total = materials + labor + overhead;
+function calc(){
+    let c = getCurrency();
+    let yarn = +document.getElementById("yarn").value || 0;
+    let mat = +document.getElementById("materials").value || 0;
+    let hrs = +document.getElementById("hours").value || 0;
+    let rate = +document.getElementById("rate").value || 0;
+    let overheadP = +document.getElementById("overhead").value || 0;
+    let productName = document.getElementById("product").value || "Unnamed Product";
 
-function price(p){ return total*(1+p/100); }
+    if(!yarn && !mat && !hrs && !rate){
+        document.getElementById("output").innerHTML = "Enter your details above to see results";
+        return;
+    }
 
-let p30 = price(30);
-let p40 = price(40);
-let p50 = price(50);
-let p60 = price(60);
-let p70 = price(70);
+    let materials = yarn + mat;
+    let labor = hrs * rate;
+    let overhead = (materials + labor)*(overheadP/100);
+    let total = materials + labor + overhead;
 
-let wholesaleMin = p50*0.4;
-let wholesaleMax = p50*0.5;
+    function price(p){ return total*(1+p/100); }
 
-summary = 
-"🧶 CROCHET PRICING RESULT\n\n" +
-"Materials: " + c + materials.toFixed(2) + "\n" +
-"Labor: " + c + labor.toFixed(2) + "\n" +
-"Overhead: " + c + overhead.toFixed(2) + "\n" +
-"Total Cost: " + c + total.toFixed(2) + "\n\n" +
+    let p30 = price(30);
+    let p40 = price(40);
+    let p50 = price(50);
+    let p60 = price(60);
+    let p70 = price(70);
 
-"SELLING PRICES\n" +
-"30% → " + c + p30.toFixed(2) + "\n" +
-"40% → " + c + p40.toFixed(2) + "\n" +
-"🎯 Recommended (50%) → " + c + p50.toFixed(2) + "\n" +
-"60% → " + c + p60.toFixed(2) + "\n" +
-"70% → " + c + p70.toFixed(2) + "\n\n" +
+    let wholesaleMin = p50*0.4;
+    let wholesaleMax = p50*0.5;
 
-"WHOLESALE RANGE\n" +
-c + wholesaleMin.toFixed(2) + " - " + c + wholesaleMax.toFixed(2);
+    summary = 
+    `🧶 CROCHET PRICING RESULT – ${productName}\n\n` +
+    `Materials: ${c}${materials.toFixed(2)}\n` +
+    `Labor: ${c}${labor.toFixed(2)}\n` +
+    `Overhead: ${c}${overhead.toFixed(2)}\n` +
+    `Total Cost: ${c}${total.toFixed(2)}\n\n` +
 
-document.getElementById("output").innerHTML = summary.replace(/\n/g,"<br>");
+    `SELLING PRICES\n` +
+    `30% → ${c}${p30.toFixed(2)}\n` +
+    `40% → ${c}${p40.toFixed(2)}\n` +
+    `🎯 Recommended (50%) → ${c}${p50.toFixed(2)}\n` +
+    `60% → ${c}${p60.toFixed(2)}\n` +
+    `70% → ${c}${p70.toFixed(2)}\n\n` +
+
+    `WHOLESALE RANGE\n` +
+    `${c}${wholesaleMin.toFixed(2)} - ${c}${wholesaleMax.toFixed(2)}`;
+
+    document.getElementById("output").innerHTML = summary.replace(/\n/g,"<br>");
 }
 
 document.querySelectorAll("input,select").forEach(e=>e.addEventListener("input",calc));
 
 function saveProduct(){
-let name = document.getElementById("product").value || "Unnamed Product";
-if(!summary) return alert("Calculate first");
+    let name = document.getElementById("product").value || "Unnamed Product";
+    if(!summary) return alert("Calculate first");
 
-saved.push({name, summary});
-renderHistory();
-alert("Saved successfully!");
+    saved.push({name, summary});
+    renderHistory();
+    alert("Saved successfully!");
 }
 
 function renderHistory(){
-let html="";
-saved.forEach((p)=>{
-html += `<div class="card">
-<strong>${p.name}</strong><br>
-${p.summary.replace(/\n/g,"<br>")}
-</div>`;
-});
-document.getElementById("history").innerHTML = html;
+    let html="";
+    saved.forEach((p)=>{
+        html += `<div class="card">
+        <strong>${p.name}</strong><br>
+        ${p.summary.replace(/\n/g,"<br>")}
+        </div>`;
+    });
+    document.getElementById("history").innerHTML = html;
 }
 
-function exportData(){
-let blob = new Blob([JSON.stringify(saved,null,2)], {type:"application/json"});
-let a = document.createElement("a");
-a.href = URL.createObjectURL(blob);
-a.download="crochet-pricing-data.json";
-a.click();
+function downloadImage(){
+    html2canvas(document.getElementById("output")).then(canvas=>{
+        let link = document.createElement("a");
+        link.download = 'crochet-pricing-result.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    });
 }
 
 function shareWhatsApp(){
-if(!summary) return alert("Calculate first");
-
-let text = encodeURIComponent(summary);
-window.open("https://wa.me/?text="+text);
+    if(!summary) return alert("Calculate first");
+    let text = encodeURIComponent(summary);
+    window.open("https://wa.me/?text="+text);
 }
 </script>
 
