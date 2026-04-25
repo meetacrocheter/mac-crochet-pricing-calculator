@@ -48,13 +48,6 @@ select {
   border-radius: 10px;
 }
 
-.highlight {
-  background: #e6ffe6;
-  padding: 8px;
-  border-radius: 6px;
-  font-weight: bold;
-}
-
 button {
   width: 100%;
   padding: 12px;
@@ -223,18 +216,18 @@ button {
   <a
     href="https://chat.whatsapp.com/FentWZJuEILI1gaTy7ptLz?mode=gi_t"
     target="_blank"
-    style="color:#555; text-decoration:none;"
+    style="color:#25D366; font-weight:600; text-decoration:underline;"
   >
-    • Discussion Group 1
+    👉 Tap to Join Discussion Group 1
   </a>
   <br>
 
   <a
     href="https://chat.whatsapp.com/HXjSSyMKk4YIKVWV3f1zFz?mode=gi_t"
     target="_blank"
-    style="color:#555; text-decoration:none;"
+    style="color:#25D366; font-weight:600; text-decoration:underline;"
   >
-    • Discussion Group 2
+    👉 Tap to Join Discussion Group 2
   </a>
   <br><br>
 
@@ -246,9 +239,9 @@ button {
   <a
     href="https://chat.whatsapp.com/IHrzah07YoC4BJIf8TKHpG?mode=gi_t"
     target="_blank"
-    style="color:#555; text-decoration:none;"
+    style="color:#128C7E; font-weight:600; text-decoration:underline;"
   >
-    • MaC Marketplace Vendors
+    👉 Tap to Join MaC Marketplace Vendors
   </a>
 
 </div>
@@ -261,7 +254,6 @@ button {
 let saved = [];
 let summary = "";
 
-/* Skill level guide only */
 document.getElementById("skill").addEventListener("change", function () {
   const selectedRate = this.value;
   const infoText =
@@ -272,38 +264,27 @@ document.getElementById("skill").addEventListener("change", function () {
   document.getElementById("skillInfo").innerText = infoText;
 });
 
-/* Currency mapping */
 const currencyMap = {
   "₦": "₦",
   "NGN": "₦",
-
   "$": "$",
   "USD": "$",
-
   "€": "€",
   "EUR": "€",
-
   "£": "£",
   "GBP": "£",
-
   "₵": "₵",
   "GHS": "₵",
-
   "R": "R",
   "ZAR": "R",
-
   "KSh": "KSh",
   "KES": "KSh",
-
   "C$": "C$",
   "CAD": "C$",
-
   "A$": "A$",
   "AUD": "A$",
-
   "¥": "¥",
   "JPY": "¥",
-
   "₹": "₹",
   "INR": "₹"
 };
