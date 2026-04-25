@@ -83,6 +83,27 @@ button {
 Enter your details above to see results
 </div>
 
+<!-- 🔥 COMMUNITY FUNNEL SECTION -->
+<div class="section" style="background:#fff3e6; border:1px solid #ffd9b3;">
+  <strong>💬 Join crocheters improving their pricing and growth</strong><br><br>
+
+  Be part of the Meet a Crocheter community where crocheters learn, grow, and improve how they price their work.<br><br>
+
+  <strong>General Community (Choose one space):</strong><br>
+  👉 <a href="https://chat.whatsapp.com/FentWZJuEILI1gaTy7ptLz?mode=gi_t" target="_blank" style="color:#25D366; font-weight:bold;">
+  Join Discussion Group 1
+  </a><br>
+
+  👉 <a href="https://chat.whatsapp.com/HXjSSyMKk4YIKVWV3f1zFz?mode=gi_t" target="_blank" style="color:#25D366; font-weight:bold;">
+  Join Discussion Group 2
+  </a><br><br>
+
+  <strong>For Crochet Entrepreneurs (Vendors):</strong><br>
+  👉 <a href="https://chat.whatsapp.com/IHrzah07YoC4BJIf8TKHpG?mode=gi_t" target="_blank" style="color:#128C7E; font-weight:bold;">
+  Join MaC Vendor Marketplace
+  </a>
+</div>
+
 <button class="save" onclick="saveProduct()">Save Product</button>
 <button class="export" onclick="downloadImage()">Download Result as Image</button>
 <button class="share" onclick="shareWhatsApp()">Share to WhatsApp</button>
@@ -99,19 +120,19 @@ Enter your details above to see results
 let saved = [];
 let summary = "";
 
-// Recommended rate display when skill changes (does NOT override user input)
+// Recommended rate display when skill changes
 document.getElementById("skill").addEventListener("change", function() {
     const selectedRate = this.value;
     const infoText = this.options[this.selectedIndex].dataset.text + " – Recommended: " + selectedRate;
     document.getElementById("skillInfo").innerText = infoText;
 });
 
-// Map for common currencies (expandable)
+// Currency handling
 const currencyMap = {
-    "₦": "NGN", "NGN":"₦",
-    "$":"USD", "USD":"$", 
-    "€":"EUR", "EUR":"€", 
-    "£":"GBP", "GBP":"£",
+    "₦":"NGN","NGN":"₦",
+    "$":"USD","USD":"$",
+    "€":"EUR","EUR":"€",
+    "£":"GBP","GBP":"£",
     "₵":"GHS","GHS":"₵",
     "R":"ZAR","ZAR":"R",
     "KSh":"KES","KES":"KSh",
@@ -119,7 +140,6 @@ const currencyMap = {
     "A$":"AUD","AUD":"A$",
     "¥":"JPY","JPY":"¥",
     "₹":"INR","INR":"₹"
-    // Add more as needed
 };
 
 function getCurrency() {
@@ -157,7 +177,7 @@ function calc(){
     let wholesaleMin = p50*0.4;
     let wholesaleMax = p50*0.5;
 
-    summary = 
+    summary =
     `🧶 CROCHET PRICING RESULT – ${productName}\n\n` +
     `Materials: ${c}${materials.toFixed(2)}\n` +
     `Labor: ${c}${labor.toFixed(2)}\n` +
