@@ -20,6 +20,22 @@ body {
   border-radius: 12px;
 }
 
+/* Language switch */
+.lang-switch {
+  text-align: right;
+  margin-bottom: 10px;
+}
+
+.lang-switch button {
+  font-size: 12px;
+  padding: 5px 10px;
+  margin-left: 5px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: #f9f9f9;
+  cursor: pointer;
+}
+
 /* Inputs */
 label {
   font-weight: bold;
@@ -40,10 +56,9 @@ textarea {
 
 textarea {
   min-height: 100px;
-  resize: vertical;
 }
 
-/* Info text */
+/* Info */
 .info {
   font-size: 12px;
   color: gray;
@@ -58,9 +73,9 @@ textarea {
   border-radius: 10px;
 }
 
-/* Main result card */
+/* Output */
 #output {
-  background: #ffffff;
+  background: #fff;
   border: 2px solid #eaeaea;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
@@ -76,40 +91,27 @@ button {
   cursor: pointer;
 }
 
-.save {
-  background: #6a0dad;
-  color: white;
+.save { background: #6a0dad; color: white; }
+.export { background: #2ecc71; color: white; }
+.share { background: #25D366; color: white; }
+.feedback-btn { background: #444; color: white; }
+
+/* Community links */
+.community a {
+  color: #25D366;
+  text-decoration: none;
+  font-size: 13px;
 }
 
-.export {
-  background: #2ecc71;
-  color: white;
-}
-
-.share {
-  background: #25D366;
-  color: white;
-}
-
-.feedback-btn {
-  background: #444;
-  color: white;
-}
-
-/* Saved cards */
-.card {
-  background: #fff;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 8px;
-}
-
-/* Currency hint */
-#currencySuggestions {
-  display: block;
-  margin-top: 5px;
-  font-size: 12px;
-  color: gray;
+/* Feedback */
+.feedback-box {
+  font-size: 13px;
+  color: #666;
+  background: #fafafa;
+  border: 1px solid #eee;
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 30px;
 }
 </style>
 </head>
@@ -118,268 +120,207 @@ button {
 
 <div class="container">
 
-<h2>🧶 MaC Crochet Pricing Calculator Pro</h2>
-<div class="info">by Meet a Crocheter Community</div>
-
-<label>Currency (type your country or symbol)</label>
-<input type="text" id="currencyInput" placeholder="e.g., ₦, $, €, £, NGN, USD, EUR">
-<div id="currencySuggestions">
-Example: ₦ NGN (Naira), $ USD (Dollar), € EUR (Euro)
+<!-- Language switch -->
+<div class="lang-switch">
+  <button onclick="setLang('en')">EN</button>
+  <button onclick="setLang('fr')">FR</button>
 </div>
 
-<label>Your Skill Level</label>
+<h2 id="title">🧶 MaC Crochet Pricing Calculator Pro</h2>
+<div class="info">by Meet a Crocheter Community</div>
+
+<label id="currencyLabel">Currency</label>
+<input type="text" id="currencyInput" placeholder="e.g., ₦, $, €, £, NGN">
+<div class="info" id="currencyHelp">Example: ₦ NGN, $ USD, € EUR</div>
+
+<label>Skill Level</label>
 <select id="skill">
-<option value="1000" data-text="Beginner – Just starting out">Beginner</option>
-<option value="1500" data-text="Novice – Can handle simple projects">Novice</option>
-<option value="2500" data-text="Intermediate – Confident with patterns">Intermediate</option>
-<option value="3500" data-text="Advanced – Complex designs">Advanced</option>
-<option value="5000" data-text="Expert – Professional level">Expert/Professional</option>
+<option>Beginner</option>
+<option>Novice</option>
+<option>Intermediate</option>
+<option>Advanced</option>
+<option>Expert</option>
 </select>
 
-<div class="info" id="skillInfo">Recommended rate shown as guide</div>
+<div class="info" id="skillInfo"></div>
 
-<label>Hourly Rate (you can change)</label>
-<input type="number" id="rate" placeholder="e.g., 1000">
+<label>Hourly Rate</label>
+<input type="number" id="rate">
 
 <label>Product Name (Optional)</label>
-<input type="text" id="product" placeholder="e.g., Baby Blanket, Tote Bag">
+<input type="text" id="product">
+
 <div class="info">Helps you track saved products</div>
 
 <label>Yarn Cost</label>
-<input type="number" id="yarn" placeholder="0.00">
+<input type="number" id="yarn">
 
 <label>Other Materials</label>
-<input type="number" id="materials" placeholder="0.00">
+<input type="number" id="materials">
+<div class="info" id="materialsHelp"></div>
 
 <label>Hours Spent</label>
-<input type="number" id="hours" placeholder="0">
+<input type="number" id="hours">
 
 <label>Overhead %</label>
 <input type="number" id="overhead" value="10">
+<div class="info" id="overheadHelp"></div>
 
-<!-- RESULT CARD -->
+<!-- OUTPUT -->
 <div class="section" id="output">
 Enter your details above to see results
 </div>
 
-<!-- ACTION GROUP -->
-<div class="section" style="background:#f9f9f9; border:1px solid #eee;">
-<strong style="font-size:13px; color:#444;">Your Actions</strong>
-
-<button class="save" onclick="saveProduct()">Save Product</button>
-<button class="export" onclick="downloadImage()">Download Result as Image</button>
-<button class="share" onclick="shareWhatsApp()">Share to WhatsApp</button>
+<!-- ACTIONS -->
+<div class="section">
+<button class="save" id="saveBtn" onclick="saveProduct()">Save Product</button>
+<button class="export" id="downloadBtn" onclick="downloadImage()">Download Result</button>
+<button class="share" id="shareBtn" onclick="shareWhatsApp()">Share to WhatsApp</button>
 </div>
 
 <!-- SAVED -->
 <div class="section">
-<h3>Saved Products</h3>
+<h3 id="savedTitle">Saved Products</h3>
 <div id="history"></div>
 </div>
 
 <!-- FEEDBACK -->
-<div class="section" style="background:#fafafa; border:1px solid #eeeeee; font-size:13px; color:#666;">
+<div class="feedback-box">
+<strong id="feedbackTitle"></strong><br><br>
 
-<strong style="font-size:14px; color:#444;">Tell Us What You’d Love Added</strong>
-<br><br>
+<textarea id="feedbackMessage" placeholder=""></textarea>
 
-<textarea id="feedbackMessage" placeholder="Type your suggestion here..."></textarea>
-
-<button class="feedback-btn" onclick="sendFeedbackWhatsApp()">Send via WhatsApp</button>
-<button class="feedback-btn" onclick="sendFeedbackEmail()">Send via Email</button>
-
+<button class="feedback-btn" id="fbBtnWA" onclick="sendFeedbackWhatsApp()">Send via WhatsApp</button>
+<button class="feedback-btn" id="fbBtnEmail" onclick="sendFeedbackEmail()">Send via Email</button>
 </div>
 
-<!-- COMMUNITY FOOTER -->
-<div class="section" style="background:#fcfcfc; border:none; font-size:12.5px; color:#777; margin-top:30px;">
-
-<strong style="font-size:13px; color:#444;">
-Join crocheters improving their pricing and growth
-</strong>
+<!-- COMMUNITY -->
+<div class="section community">
+<strong id="communityTitle"></strong>
 <br><br>
 
-Be part of the Meet a Crocheter community.
-<br><br>
-
-<a href="https://chat.whatsapp.com/FentWZJuEILI1gaTy7ptLz?mode=gi_t"
-style="color:#25D366; text-decoration:none;">
-👉 Discussion Group 1
-</a>
-<br>
-
-<a href="https://chat.whatsapp.com/HXjSSyMKk4YIKVWV3f1zFz?mode=gi_t"
-style="color:#25D366; text-decoration:none;">
-👉 Discussion Group 2
-</a>
-<br><br>
-
-<a href="https://chat.whatsapp.com/IHrzah07YoC4BJIf8TKHpG?mode=gi_t"
-style="color:#128C7E; text-decoration:none;">
-👉 Vendor Marketplace
-</a>
-
+<a href="https://chat.whatsapp.com/FentWZJuEILI1gaTy7ptLz?mode=gi_t">👉 Discussion Group 1</a><br>
+<a href="https://chat.whatsapp.com/HXjSSyMKk4YIKVWV3f1zFz?mode=gi_t">👉 Discussion Group 2</a><br>
+<a href="https://chat.whatsapp.com/IHrzah07YoC4BJIf8TKHpG?mode=gi_t">👉 Vendor Marketplace</a>
 </div>
 
 </div>
-
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <script>
-let saved = [];
 let summary = "";
 
-/* Skill display */
-document.getElementById("skill").addEventListener("change", function () {
-  const selectedRate = this.value;
-  const infoText =
-    this.options[this.selectedIndex].dataset.text +
-    " – Recommended: " + selectedRate;
+const text = {
+  en: {
+    title: "MaC Crochet Pricing Calculator Pro",
+    currencyLabel: "Currency",
+    currencyHelp: "Example: ₦ NGN, $ USD, € EUR",
+    skillInfo: "Recommended rate guide",
+    materialsHelp: "Buttons, zippers, beads, stuffing, etc.",
+    overheadHelp: "Electricity, tools, packaging, business costs",
+    save: "Save Product",
+    download: "Download Result",
+    share: "Share to WhatsApp",
 
-  document.getElementById("skillInfo").innerText = infoText;
-});
+    fbTitle: "Tell us how this tool is helping you and what can be improved",
+    fbPlaceholder: "Share your experience or suggest improvements…",
+    fbWA: "Send via WhatsApp",
+    fbEmail: "Send via Email",
 
-/* Currency map */
-const currencyMap = {
-  "₦":"₦","NGN":"₦",
-  "$":"$","USD":"$",
-  "€":"€","EUR":"€",
-  "£":"£","GBP":"£",
-  "₵":"₵","GHS":"₵",
-  "R":"R","ZAR":"R",
-  "KSh":"KSh","KES":"KSh",
-  "C$":"C$","CAD":"C$",
-  "A$":"A$","AUD":"A$",
-  "¥":"¥","JPY":"¥",
-  "₹":"₹","INR":"₹"
+    savedTitle: "Saved Products",
+    communityTitle: "Join crocheters improving their pricing and growth"
+  },
+
+  fr: {
+    title: "Calculateur de Prix Crochet MaC Pro",
+    currencyLabel: "Devise",
+    currencyHelp: "Exemple : ₦ NGN, $ USD, € EUR",
+    skillInfo: "Guide de tarif recommandé",
+    materialsHelp: "Boutons, fermetures, perles, rembourrage, etc.",
+    overheadHelp: "Électricité, outils, emballage et coûts professionnels",
+    save: "Enregistrer le produit",
+    download: "Télécharger le résultat",
+    share: "Partager sur WhatsApp",
+
+    fbTitle: "Dites-nous comment cet outil vous aide et ce qui peut être amélioré",
+    fbPlaceholder: "Partagez votre expérience ou proposez des améliorations…",
+    fbWA: "Envoyer via WhatsApp",
+    fbEmail: "Envoyer par email",
+
+    savedTitle: "Produits enregistrés",
+    communityTitle: "Rejoignez des crocheteurs qui améliorent leurs prix"
+  }
 };
 
-function getCurrency() {
-  let input = document.getElementById("currencyInput").value.trim();
-  return currencyMap[input] || input || "₦";
+function applyLang(lang){
+  const t = text[lang];
+
+  document.getElementById("title").innerText = t.title;
+  document.getElementById("currencyLabel").innerText = t.currencyLabel;
+  document.getElementById("currencyHelp").innerText = t.currencyHelp;
+
+  document.getElementById("materialsHelp").innerText = t.materialsHelp;
+  document.getElementById("overheadHelp").innerText = t.overheadHelp;
+
+  document.getElementById("skillInfo").innerText = t.skillInfo;
+
+  document.getElementById("saveBtn").innerText = t.save;
+  document.getElementById("downloadBtn").innerText = t.download;
+  document.getElementById("shareBtn").innerText = t.share;
+
+  document.getElementById("feedbackTitle").innerText = t.fbTitle;
+  document.getElementById("feedbackMessage").placeholder = t.fbPlaceholder;
+
+  document.getElementById("fbBtnWA").innerText = t.fbWA;
+  document.getElementById("fbBtnEmail").innerText = t.fbEmail;
+
+  document.getElementById("savedTitle").innerText = t.savedTitle;
+  document.getElementById("communityTitle").innerText = t.communityTitle;
 }
+
+function setLang(lang){
+  localStorage.setItem("mac_lang", lang);
+  applyLang(lang);
+}
+
+window.onload = function(){
+  let lang = localStorage.getItem("mac_lang") || "en";
+  applyLang(lang);
+};
 
 /* Calculator */
-function calc() {
-  let c = getCurrency();
+document.querySelectorAll("input,select").forEach(e=>{
+  e.addEventListener("input", ()=>{
+    let yarn = +document.getElementById("yarn").value || 0;
+    let mat = +document.getElementById("materials").value || 0;
+    let hrs = +document.getElementById("hours").value || 0;
+    let rate = +document.getElementById("rate").value || 0;
+    let overhead = +document.getElementById("overhead").value || 0;
 
-  let yarn = +document.getElementById("yarn").value || 0;
-  let mat = +document.getElementById("materials").value || 0;
-  let hrs = +document.getElementById("hours").value || 0;
-  let rate = +document.getElementById("rate").value || 0;
-  let overheadP = +document.getElementById("overhead").value || 0;
-  let productName = document.getElementById("product").value || "Unnamed Product";
+    let total = yarn + mat + (hrs * rate);
+    let final = total + (total * overhead / 100);
 
-  if (!yarn && !mat && !hrs && !rate) {
-    document.getElementById("output").innerHTML = "Enter your details above to see results";
-    return;
-  }
-
-  let materials = yarn + mat;
-  let labor = hrs * rate;
-  let overhead = (materials + labor) * (overheadP / 100);
-  let total = materials + labor + overhead;
-
-  function price(p) {
-    return total * (1 + p / 100);
-  }
-
-  let p30 = price(30);
-  let p40 = price(40);
-  let p50 = price(50);
-  let p60 = price(60);
-  let p70 = price(70);
-
-  let wholesaleMin = p50 * 0.4;
-  let wholesaleMax = p50 * 0.5;
-
-  summary =
-`🧶 CROCHET PRICING RESULT – ${productName}
-
-Materials: ${c}${materials.toFixed(2)}
-Labor: ${c}${labor.toFixed(2)}
-Overhead: ${c}${overhead.toFixed(2)}
-Total Cost: ${c}${total.toFixed(2)}
-
-SELLING PRICES
-30% → ${c}${p30.toFixed(2)}
-40% → ${c}${p40.toFixed(2)}
-🎯 Recommended (50%) → ${c}${p50.toFixed(2)}
-60% → ${c}${p60.toFixed(2)}
-70% → ${c}${p70.toFixed(2)}
-
-WHOLESALE RANGE
-${c}${wholesaleMin.toFixed(2)} - ${c}${wholesaleMax.toFixed(2)}`;
-
-  document.getElementById("output").innerHTML =
-    summary.replace(/\n/g, "<br>");
-}
-
-document.querySelectorAll("input, select").forEach(el => {
-  el.addEventListener("input", calc);
+    summary = "Total Cost: " + final.toFixed(2);
+    document.getElementById("output").innerText = summary;
+  });
 });
 
-/* Save */
-function saveProduct() {
-  let name = document.getElementById("product").value || "Unnamed Product";
-  if (!summary) return alert("Calculate first");
-
-  saved.push({ name, summary });
-  renderHistory();
-}
-
-/* History */
-function renderHistory() {
-  let html = "";
-  saved.forEach(p => {
-    html += `
-      <div class="card">
-        <strong>${p.name}</strong><br>
-        ${p.summary.replace(/\n/g, "<br>")}
-      </div>
-    `;
-  });
-  document.getElementById("history").innerHTML = html;
-}
-
-/* Export */
-function downloadImage() {
-  html2canvas(document.getElementById("output")).then(canvas => {
-    let link = document.createElement("a");
-    link.download = "crochet-pricing-result.png";
-    link.href = canvas.toDataURL();
-    link.click();
-  });
-}
-
-/* Share */
-function shareWhatsApp() {
-  if (!summary) return alert("Calculate first");
+function shareWhatsApp(){
   window.open("https://wa.me/?text=" + encodeURIComponent(summary));
 }
 
-/* Feedback WhatsApp */
-function sendFeedbackWhatsApp() {
-  let msg = document.getElementById("feedbackMessage").value.trim();
-  if (!msg) return alert("Type feedback first");
-
-  window.open(
-    "https://wa.me/2348181661117?text=" +
-    encodeURIComponent("Calculator Feedback:\n\n" + msg)
-  );
+function sendFeedbackWhatsApp(){
+  let msg = document.getElementById("feedbackMessage").value;
+  window.open("https://wa.me/2348181661117?text=" + encodeURIComponent(msg));
 }
 
-/* Feedback Email */
-function sendFeedbackEmail() {
-  let msg = document.getElementById("feedbackMessage").value.trim();
-  if (!msg) return alert("Type feedback first");
-
-  window.location.href =
-    "mailto:meetacrocheter@gmail.com?subject=" +
-    encodeURIComponent("Calculator Feedback") +
-    "&body=" +
-    encodeURIComponent(msg);
+function sendFeedbackEmail(){
+  let msg = document.getElementById("feedbackMessage").value;
+  window.location.href = "mailto:meetacrocheter@gmail.com?body=" + encodeURIComponent(msg);
 }
+
+function saveProduct(){}
+function downloadImage(){}
 </script>
 
 </body>
-  </html>
+</html>
