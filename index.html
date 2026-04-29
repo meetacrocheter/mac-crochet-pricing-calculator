@@ -152,27 +152,42 @@ button {
 <!-- REVIEW -->
 <div class="section">
 <strong>💬 Review & Feedback</strong>
+
 <div class="info">
-Tell us how this tool is helping your crochet business and what could be improved.
+Tell us how this tool is helping your crochet business and what could be improved.  
 Your feedback helps us improve this calculator for crocheters everywhere.
 </div>
 
 <textarea id="feedback" placeholder="Share your experience or suggestions..."></textarea>
 
-<button class="feedback" onclick="sendFeedbackWhatsApp()">Send via WhatsApp</button>
-<button class="feedback" onclick="sendFeedbackEmail()">Send via Email</button>
+<a href="https://wa.me/234818166117" target="_blank">
+<button class="feedback">Send via WhatsApp</button>
+</a>
+
+<a href="mailto:meetacrocheter@gmail.com">
+<button class="feedback">Send via Email</button>
+</a>
 </div>
 
 <!-- COMMUNITY -->
 <div class="section">
 <strong>🌍 Community</strong>
+
 <div class="info">
 Join other crocheters using this calculator to price better and grow their business.
 </div>
 
-<a href="#">👉 Discussion Group 1</a><br>
-<a href="#">👉 Discussion Group 2</a><br>
-<a href="#">👉 Vendor Marketplace</a>
+<a href="https://chat.whatsapp.com/FentWZJuEILI1gaTy7ptLz?mode=gi_t" target="_blank">
+👉 Discussion Group 1
+</a><br>
+
+<a href="https://chat.whatsapp.com/HXjSSyMKk4YIKVWV3f1zFz?mode=gi_t" target="_blank">
+👉 Discussion Group 2
+</a><br>
+
+<a href="https://chat.whatsapp.com/IHrzah07YoC4BJIf8TKHpG?mode=gi_t" target="_blank">
+👉 Crochet Entrepreneurs
+</a>
 </div>
 
 </div>
@@ -183,18 +198,16 @@ Join other crocheters using this calculator to price better and grow their busin
 let saved = [];
 let summary = "";
 
-/* skill helper */
+/* skill */
 document.getElementById("skill").addEventListener("change", function () {
-  const values = {
+  const map = {
     1000: "Beginner – 1000 (Just starting out)",
     1500: "Novice – 1500 (Simple projects)",
-    2500: "Intermediate – 2500 (Confident with patterns)",
+    2500: "Intermediate – 2500 (Confident)",
     3500: "Advanced – 3500 (Complex designs)",
     5000: "Expert – 5000 (Professional level)"
   };
-
-  document.getElementById("skillInfo").innerText =
-    values[this.value] + " – Recommended rate active";
+  document.getElementById("skillInfo").innerText = map[this.value];
 });
 
 /* currency */
@@ -257,41 +270,20 @@ document.querySelectorAll("input,select").forEach(e => {
   e.addEventListener("input", calc);
 });
 
-/* save */
-function saveProduct() {
-  if (!summary) return alert("Calculate first");
-  let name = document.getElementById("product").value || "Unnamed";
-  saved.push({ name, summary });
-}
-
-/* export */
-function downloadImage() {
-  html2canvas(document.getElementById("output")).then(canvas => {
-    let a = document.createElement("a");
-    a.download = "crochet-result.png";
-    a.href = canvas.toDataURL();
+/* actions */
+function saveProduct(){ if(summary) alert("Saved"); }
+function downloadImage(){
+  html2canvas(document.getElementById("output")).then(c=>{
+    let a=document.createElement("a");
+    a.download="result.png";
+    a.href=c.toDataURL();
     a.click();
   });
 }
-
-/* whatsapp */
-function shareWhatsApp() {
-  if (!summary) return alert("Calculate first");
-  window.open("https://wa.me/?text=" + encodeURIComponent(summary));
+function shareWhatsApp(){
+  window.open("https://wa.me/?text="+encodeURIComponent(summary));
 }
-
-/* feedback */
-function sendFeedbackWhatsApp() {
-  let msg = document.getElementById("feedback").value;
-  window.open("https://wa.me/?text=" + encodeURIComponent(msg));
-}
-
-function sendFeedbackEmail() {
-  let msg = document.getElementById("feedback").value;
-  window.location.href = "mailto:?subject=Feedback&body=" + encodeURIComponent(msg);
-}
-
 </script>
 
 </body>
-  </html>
+</html>
